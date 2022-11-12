@@ -3,16 +3,18 @@ import pymongo
 import json
 from bson.json_util import dumps
 from bson.objectid import ObjectId
+import os
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-
     id = req.params.get('id')
-
     if id:
         try:
-            url = "localhost"  # TODO: Update with appropriate MongoDB connection information
+            # Change the Variable name, as applicable to you
+            url = os.environ["MyDbConnection"]
             client = pymongo.MongoClient(url)
-            database = client['azure']
+            database = client['neighbourly']  # Change the MongoDB name
+            # Change the collection name
             collection = database['posts']
 
             query = {'_id': ObjectId(id)}
@@ -20,7 +22,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             result = dumps(result)
 
             return func.HttpResponse(result, mimetype="application/json", charset='utf-8')
-        except:
+        except ConnectionError as e:
             return func.HttpResponse("Database connection error.", status_code=500)
 
     else:
